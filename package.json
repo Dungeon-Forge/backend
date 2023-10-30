@@ -1,0 +1,30 @@
+{
+  "name": "dungeon-forge-generator",
+  "version": "1.0.0",
+  "description": "Web server that handles generating a new Dungeons and Dragons campaign",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --exec ts-node src/index.ts",
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dungeon-Forge/backend.git"
+  },
+  "author": "Adam Ure",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dungeon-Forge/backend/issues"
+  },
+  "homepage": "https://github.com/Dungeon-Forge/backend#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.20",
+    "@types/node": "^20.8.9",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1"
+  }
+}
