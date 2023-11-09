@@ -1,0 +1,229 @@
+openapi: 3.0.3
+info: 
+  contact: 
+    email: aure1@live.maryville.edu
+    name: Adam Ure
+    x-role: responsible developer
+  description: Documentation of the Dungeon Forge web services.
+  title: Dungeon Forge API
+  version: "1.0"
+tags: 
+  - name: campaign
+paths:
+  "/campaign/generate":
+    post:
+      description:
+        Command to generate a new campaign based on the input parameters provided by the generation form. The user inputs simple parameters such as number of players, expected levels, and preference for different styles of play. On success, the client will receive the id of a newly generated campaign.
+      requestBody:
+        content:
+          application/json:
+            example:
+              numPlayers: 4
+              startLevel: 1
+              endLevel: 5
+              rolePlayingPreference: neutral
+              trapPreference: neutral
+              puzzlePreference: neutral
+              combatPreference: neutral
+            schema:
+              type: object
+              properties:
+                numPlayers:
+                  description:
+                    An integer representation of the number of characters that will participate in the campaign.
+                  type: integer
+                  oneOf:
+                    - minimum: 1
+                    - maximum: 10
+                startLevel:
+                  description:
+                    An integer representation of the player's starting level. Must be less than the endLevel.
+                  type: integer
+                  enum: [1, 3, 5, 10]
+                endLevel:
+                  description:
+                    An integer representation of the player's ending level. Must be greater than the startLevel.
+                  type: integer
+                  enum: [3, 5, 10, 15, 20]
+                rolePlayingPreference:
+                  description:
+                    A string representation of the role playing preference. 
+                  type: string
+                  enum: ['positive', 'neutral', 'negative']
+                trapPreference:
+                  description:
+                    A string representation of the trap preference. 
+                  type: string
+                  enum: ['positive', 'neutral', 'negative']
+                puzzlePreference:
+                  description:
+                    A string representation of the puzzle preference. 
+                  type: string
+                  enum: ['positive', 'neutral', 'negative']
+                combatPreference:
+                  description:
+                    A string representation of the combat preference. 
+                  type: string
+                  enum: ['positive', 'neutral', 'negative']
+      responses:
+        '200':
+          description: A 200 status code indicates a successful query, and is accompanied by the query response payload.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  campaign-id:
+                    type: string
+                    example: 'ce7c08b9-c4d8-437b-a589-8f9c93d46007'
+                    description: The newly generated campaign's uuid, to be used for a query for the campaign in a subsequent command.
+        '400':
+          description: A 400 status code indicates an input parameter was invalid. The response provides an error with additional details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'The provided start level was greater than  the provided end level'
+                    description: A text description of what input parameter was invalid
+        '408':
+          description: A 408 status code indicates a timeout for generating the campaign. The client can initiate a retry attempt if desired.
+        '429':
+          description: A 429 status code indicates that the campaign generator has run out of capacity for generating campaigns through the OpenAI service. The client should indicate to the user that the service is not available and they should retry the following day.
+      tags:
+      - campaign
+      
+  "/campaign/{id}":
+    get:
+      description:
+        This is a description
+      parameters:
+        - name: id
+          description:
+            The id of the campaign the client is requesting.
+          in: path
+          required: true
+          example: "ce7c08b9-c4d8-437b-a589-8f9c93d46007"
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A 200 status code indicates a successful query, and is accompanied by the query response payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        '404':
+          description: A 404 status code indicates that the requested campaign does not exist.
+      tags:
+      - campaign
+      
+components:
+  schemas:
+      Campaign:
+        type: object
+        properties:
+              _id:
+                type: string
+                example: 'ce7c08b9-c4d8-437b-a589-8f9c93d46007'
+                description: The campaign's uuid.
+              name:
+                type: string
+                description: The title of the campaign
+                example: 'Lost Mine of Phandelver'
+              image:
+                type: string
+                description: URL for the campaign's image, if it exists
+                example: "http://images.google.com"
+              setting:
+                $ref: '#/components/schemas/CampaignSetting'
+              adventureHook:
+                $ref: '#/components/schemas/CampaignEvent'
+              adventures:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CampaignAdventure'
+              resolution:
+                $ref: '#/components/schemas/CampaignEvent'
+              html: 
+                type: string
+                description: An introduction to the campaign, formatted in HTML.
+                example: '<h1>Introduction</h1>'
+              numPlayers:
+                type: integer
+                description: The number of players this campaign was design to support
+                example: 4
+              startLevel:
+                type: integer
+                description: The level at which players are designed to start the campaign
+                example: 1
+              endLevel:
+                type: integer
+                description: The level at which players are designed to end the campaign
+                example: 5
+      CampaignSetting:
+        description:
+          The setting for a campaign, generated by the campaign generator
+        type: object
+        properties:
+          _id:
+            type: string
+            example: 'ce7c08b9-c4d8-437b-a589-8f9c93d46007'
+            description: The setting uuid.
+          name:
+            type: string
+            description: The name of the setting or world in which the campaign will take place.
+            example: 'The Forgotten Realms'
+          map:
+            type: string
+            description: URL for the setting map, if it exists
+            example: 'https://mygamenightblog.files.wordpress.com/2019/04/phandelver-map-exterior-player.jpg?w=800&zoom=2'
+          html:
+            type: string
+            description: An introduction to the campaign setting, formatted in HTML. 
+            example: '<h1>The Forgotten Realms</h1>'
+            
+      CampaignEvent:
+        description:
+          A specific event within a campaign. Can be a role playing opportunity, a puzzle, a trap, or a combat situation.
+        type: object
+        properties:
+          html:
+            type: string
+            description: A detailed description of the event, including text, images, and any other supporting content, formatted in HTML.
+            example: '<h1>Adventure Hook</h1>'
+            
+      CampaignAdventure:
+        description: 
+          A series of events that come together to describe a plot line.
+        type: object
+        properties:
+          title:
+            type: string
+            example: 'Part 1: Goblin Arrows'
+          html: 
+            type: string
+            description: An introduction to the adventure, formatted in html
+            example: '<h1>Part 1: Goblin Arrows</h1>'
+          events:
+            type: array
+            items:
+              $ref: '#/components/schemas/CampaignEvent'
+              
+                
+              
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
