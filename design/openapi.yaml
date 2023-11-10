@@ -10,7 +10,7 @@ info:
 tags: 
   - name: campaign
 paths:
-  "/campaign/generate":
+  "/campaigns/generate":
     post:
       description:
         Command to generate a new campaign based on the input parameters provided by the generation form. The user inputs simple parameters such as number of players, expected levels, and preference for different styles of play. On success, the client will receive the id of a newly generated campaign.
