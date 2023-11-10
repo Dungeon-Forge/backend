@@ -1,8 +1,23 @@
-import express, { Request, Response } from 'express';
+import express from "express";
+import { GeneratorService } from "./services/generator-service";
+const index = express.Router();
 
-const app = express();
-const port = process.env.PORT || 3000;
+const generatorService = new GeneratorService();
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+/**
+ * 
+ * Handle GET campaign/{id}
+ *
+ * @param id - A string id representing the generated campaign
+ * @returns A campaign with that id number
+ */
+index.get('/campaign/:id', function(req, res) {
+    var id = req.params.id;
+    if (id === "none") {
+        res.status(404).send()
+    } else {
+        res.status(200).json(JSON.stringify(generatorService.getCampaign(id))).send()
+    }
 });
+
+export { index };
