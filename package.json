@@ -4,7 +4,7 @@
   "description": "Web server that handles generating a new Dungeons and Dragons campaign",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec ts-node src/app.ts",
+    "start": "ts-node src/app.ts",
     "test": "jest"
   },
   "repository": {
@@ -21,7 +21,8 @@
     "body-parser": "^1.20.2",
     "express": "^4.18.2",
     "sequelize": "^6.33.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "ts-node": "^10.9.1"
   },
   "devDependencies": {
     "@babel/core": "^7.23.2",
