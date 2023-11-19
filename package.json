@@ -4,7 +4,9 @@
   "description": "Web server that handles generating a new Dungeons and Dragons campaign",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/app.ts",
+    "build": "tsc",
+    "start": "node app.js",
+    "dev": "ts-node src/app.ts",
     "test": "jest"
   },
   "repository": {
