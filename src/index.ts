@@ -2,12 +2,16 @@ import express from "express";
 import { GeneratorService } from "./services/generator-service";
 import { CampaignFormValidator } from "./services/form-validator";
 import { CampaignFormResponse } from "./models/campaign-form-response";
+
+var cors = require('cors')
 const index = express.Router();
 
 const generatorService = new GeneratorService();
 
-index.post('/campaigns/generate', function(req, res) {
+index.post('/campaigns/generate', cors(), function(req, res) {
+    console.log("Received generate request...")
     res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'POST')
 
     console.log(req.body)
     const body = req.body
@@ -33,8 +37,10 @@ index.post('/campaigns/generate', function(req, res) {
  * @param id - A string id representing the generated campaign
  * @returns A campaign with that id number
  */
-index.get('/campaign/:id', function(req, res) {
+index.get('/campaign/:id', cors(), function(req, res) {
+    res.removeHeader('Access-Control-Allow-Origin')
     res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'GET');
     let id = req.params.id;
 
     if (id.toString() === "none") {
