@@ -7,6 +7,8 @@ const index = express.Router();
 const generatorService = new GeneratorService();
 
 index.post('/campaigns/generate', function(req, res) {
+    res.set('Access-Control-Allow-Origin', '*');
+
     console.log(req.body)
     const body = req.body
     if (Object.keys(body).length === 0) {
@@ -16,6 +18,7 @@ index.post('/campaigns/generate', function(req, res) {
             const validator = new CampaignFormValidator()
             const formInput = body as CampaignFormResponse
             res.status(200).send()
+            
         } catch(e) {
             console.log("Invalid input form: " + e)
             res.status(400).send("Invalid input parameters")
@@ -31,6 +34,7 @@ index.post('/campaigns/generate', function(req, res) {
  * @returns A campaign with that id number
  */
 index.get('/campaign/:id', function(req, res) {
+    res.set('Access-Control-Allow-Origin', '*');
     let id = req.params.id;
 
     if (id.toString() === "none") {
