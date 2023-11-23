@@ -1,4 +1,4 @@
-import { CampaignFormResponse } from "../models/campaign-form-response";
+import { CampaignFormResponse } from "../../models/campaign-form-response";
 import { CampaignFormValidator } from "./form-validator";
 import {expect, jest, test} from '@jest/globals';
 

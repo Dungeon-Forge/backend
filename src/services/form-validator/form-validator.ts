@@ -1,4 +1,4 @@
-import { CampaignFormResponse } from "../models/campaign-form-response";
+import { CampaignFormResponse } from "../../models/campaign-form-response";
 
 export class CampaignFormValidator {
     private minCharacters = 1

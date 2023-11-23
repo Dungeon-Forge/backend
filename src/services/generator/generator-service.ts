@@ -1,7 +1,7 @@
-import { Adventure } from "../models/adventure";
-import { Campaign } from "../models/campaign";
-import { CampaignEvent } from "../models/campaign-event";
-import { CampaignSetting } from "../models/campaign-setting";
+import { Adventure } from "../../models/adventure";
+import { Campaign } from "../../models/campaign";
+import { CampaignEvent } from "../../models/campaign-event";
+import { CampaignSetting } from "../../models/campaign-setting";
 
 export class GeneratorService {
     getCampaign(id: string): Campaign {

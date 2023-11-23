@@ -1,6 +1,6 @@
 import express from "express";
-import { GeneratorService } from "./services/generator-service";
-import { CampaignFormValidator } from "./services/form-validator";
+import { GeneratorService } from "./services/generator/generator-service";
+import { CampaignFormValidator } from "./services/form-validator/form-validator";
 import { CampaignFormResponse } from "./models/campaign-form-response";
 
 var cors = require('cors')
