@@ -15,14 +15,25 @@ index.post('/campaigns/generate', cors(), function(req, res) {
 
     console.log(req.body)
     const body = req.body
+
     if (Object.keys(body).length === 0) {
         res.status(400).send('No input provided');
     } else {
         try {
             const validator = new CampaignFormValidator()
             const formInput = body as CampaignFormResponse
-            res.status(200).send()
             
+            generatorService
+                .createCampaign()
+                .catch((error) => {
+                    console.log("Failed to generate a new campaign: " + error)
+                    res.status(400).send("Failed to generate a campaign")
+                })
+                .then((id) => {
+                    res.status(200).send({
+                        id: id
+                    })
+                })
         } catch(e) {
             console.log("Invalid input form: " + e)
             res.status(400).send("Invalid input parameters")
