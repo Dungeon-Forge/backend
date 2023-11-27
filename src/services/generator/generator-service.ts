@@ -41,11 +41,11 @@ export class GeneratorService {
 
   private async saveCampaign(id: string) {
     const s3 = new AWS.S3({
-      accessKeyId: "AKIAWOUQRYAMK2HLJKGB",
-      secretAccessKey: "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",
-      region: "us-east-1"
+      accessKeyId: process.env.AWS_ACCESS_KEY,
+      secretAccessKey: process.env.AWS_SECRET_KEY,
+      region: process.env.AWS_BUCKET_REGION
     });
-    const bucketName = "dungeon-forge-campaigns";
+    const bucketName = process.env.AWS_BUCKET_NAME;
     const fileStream = fs.createReadStream(this.outputFile);
     const uploadParams =  {
       Bucket: bucketName,
