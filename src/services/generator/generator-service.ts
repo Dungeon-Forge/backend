@@ -45,20 +45,35 @@ export class GeneratorService {
       secretAccessKey: process.env.AWS_SECRET_KEY,
       region: process.env.AWS_BUCKET_REGION
     });
-    const bucketName = process.env.AWS_BUCKET_NAME;
-    const fileStream = fs.createReadStream(this.outputFile);
-    const uploadParams =  {
-      Bucket: bucketName,
+    const pdfbucketName = process.env.AWS_BUCKET_NAME;
+    const pdfFileStream = fs.createReadStream(this.outputFile);
+    const pdfUploadParams =  {
+      Bucket: pdfbucketName,
       Key: `${id}.pdf`,
-      Body: fileStream
+      Body: pdfFileStream
     }
 
-    await s3.upload(uploadParams, function(err: Error, data: any) {
+    await s3.upload(pdfUploadParams, function(err: Error, data: any) {
       if (err) {
           throw err;
       }
       console.log(`File uploaded successfully. ${data.Location}`);
-  });
+    });
+
+    const htmlFileStream = fs.createReadStream(this.campaignFile)
+    const htmlbucketName = process.env.HTML_BUCKET_NAME;
+    const htmlUploadParams =  {
+      Bucket: htmlbucketName,
+      Key: `${id}.html`,
+      Body: htmlFileStream
+    }
+
+    await s3.upload(htmlUploadParams, function(err: Error, data: any) {
+      if (err) {
+          throw err;
+      }
+      console.log(`File uploaded successfully. ${data.Location}`);
+    });
   }
 
   private buildHtml(): string {
