@@ -22,17 +22,26 @@ index.post('/campaigns/generate', cors(), function(req, res) {
         try {
             const validator = new CampaignFormValidator()
             const formInput = body as CampaignFormResponse
+
+            validator.validateForm(formInput)
             
             generatorService
-                .createCampaign()
+                .createCampaign(formInput)
                 .catch((error) => {
                     console.log("Failed to generate a new campaign: " + error)
                     res.status(400).send("Failed to generate a campaign")
                 })
                 .then((id) => {
-                    res.status(200).send({
-                        id: id
-                    })
+                    try {
+                        const responseBody = {
+                            id: id
+                        }
+                        console.log("Sending generate campaign response body: " + responseBody)
+                        res.status(200).send(JSON.stringify(responseBody))
+                    } catch (error) {
+                        console.log("Failed to send response: " + error)
+                    }
+                    return  
                 })
         } catch(e) {
             console.log("Invalid input form: " + e)
