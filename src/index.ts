@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 import { GeneratorService } from "./services/generator/generator-service";
 import { CampaignFormValidator } from "./services/form-validator/form-validator";
 import { CampaignFormResponse } from "./models/campaign-form-response";
@@ -8,6 +8,7 @@ const index = express.Router();
 
 const generatorService = new GeneratorService();
 
+index.options('/campaigns/generate', cors())
 index.post('/campaigns/generate', cors(), async function(req, res) {
     try {
         console.log("Received generate request...")
