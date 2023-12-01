@@ -44,7 +44,7 @@ index.post('/campaigns/generate', cors(), function(req, res) {
             //         return  
             //     })
 
-            res.status(200).send("No Cors")
+            res.status(200).send()
         } catch(e) {
             console.log("Invalid input form: " + e)
             res.status(400).send("Invalid input parameters")
