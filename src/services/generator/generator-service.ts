@@ -29,7 +29,6 @@ export class GeneratorService {
             
             if (shell.exec(`pagedjs-cli ${ this.campaignFile } -o ${ this.outputFile }`).code !== 0) {
               shell.echo('Error: Failed to generate campaign PDF');
-              shell.exit(1);
               reject(new Error("Error: Failed to generate campaign PDF"))
             }
       
