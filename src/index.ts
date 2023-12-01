@@ -39,6 +39,14 @@ index.post('/campaigns/generate', cors(), async function(req, res) {
     }
 });
 
+index.get('/campaigns/generate', cors(), async function(req, res) {
+    console.log("Received generate request...")
+    res.removeHeader('Access-Control-Allow-Origin')
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'POST')
+    res.status(200).send("No cors")
+});
+
 /**
  * 
  * Handle GET campaign/{id}
