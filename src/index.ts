@@ -26,11 +26,11 @@ index.post('/campaigns/generate', cors(), async function(req, res) {
 
         validator.validateForm(formInput)
         
-        const id = await generatorService.createCampaign(formInput);
-        const responseBody = { id };
+        // const id = await generatorService.createCampaign(formInput);
+        // const responseBody = { id };
 
-        console.log("Sending generate campaign response body: " + responseBody)
-        res.status(200).send(JSON.stringify(responseBody))
+        // console.log("Sending generate campaign response body: " + responseBody)
+        res.status(200).send(JSON.stringify({"Test": "Test"}))
     } catch(e) {
         console.log("Invalid input form: " + e)
         res.status(400).send("Invalid input parameters")
