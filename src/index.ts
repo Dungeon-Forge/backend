@@ -12,42 +12,43 @@ index.post('/campaigns/generate', cors(), function(req, res) {
     console.log("Received generate request...")
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'POST');
+    res.set(200).send("Success")
 
-    console.log(req.body)
-    const body = req.body
+    // console.log(req.body)
+    // const body = req.body
 
-    if (Object.keys(body).length === 0) {
-        res.status(400).send('No input provided');
-    } else {
-        try {
-            const validator = new CampaignFormValidator()
-            const formInput = body as CampaignFormResponse
+    // if (Object.keys(body).length === 0) {
+    //     res.status(400).send('No input provided');
+    // } else {
+    //     try {
+    //         const validator = new CampaignFormValidator()
+    //         const formInput = body as CampaignFormResponse
 
-            validator.validateForm(formInput)
+    //         validator.validateForm(formInput)
             
-            generatorService
-                .createCampaign(formInput)
-                .then((id) => {
-                    try {
-                        const responseBody = {
-                            id: id
-                        }
-                        console.log("Sending generate campaign response body: " + responseBody)
-                        res.status(200).send(JSON.stringify(responseBody))
-                    } catch (error) {
-                        console.log("Failed to send response: " + error)
-                    }
-                    return  
-                })
-                .catch((error) => {
-                    console.log("Failed to generate a new campaign: " + error)
-                    res.status(400).send("Failed to generate a campaign")
-                })
-        } catch(e) {
-            console.log("Invalid input form: " + e)
-            res.status(400).send("Invalid input parameters")
-        }
-    }
+    //         generatorService
+    //             .createCampaign(formInput)
+    //             .then((id) => {
+    //                 try {
+    //                     const responseBody = {
+    //                         id: id
+    //                     }
+    //                     console.log("Sending generate campaign response body: " + responseBody)
+    //                     res.status(200).send(JSON.stringify(responseBody))
+    //                 } catch (error) {
+    //                     console.log("Failed to send response: " + error)
+    //                 }
+    //                 return  
+    //             })
+    //             .catch((error) => {
+    //                 console.log("Failed to generate a new campaign: " + error)
+    //                 res.status(400).send("Failed to generate a campaign")
+    //             })
+    //     } catch(e) {
+    //         console.log("Invalid input form: " + e)
+    //         res.status(400).send("Invalid input parameters")
+    //     }
+    // }
 });
 
 /**
