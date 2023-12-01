@@ -15,17 +15,17 @@ index.post('/campaigns/generate', cors(), async function(req, res) {
         res.set('Access-Control-Allow-Origin', '*');
         res.set('Access-Control-Allow-Methods', 'POST')
     
-        console.log(req.body)
-        const body = req.body
+        // console.log(req.body)
+        // const body = req.body
     
-        if (Object.keys(body).length === 0) {
-            return res.status(400).send('No input provided');
-        }
+        // if (Object.keys(body).length === 0) {
+        //     return res.status(400).send('No input provided');
+        // }
         
-        const validator = new CampaignFormValidator()
-        const formInput = body as CampaignFormResponse
+        // const validator = new CampaignFormValidator()
+        // const formInput = body as CampaignFormResponse
 
-        validator.validateForm(formInput)
+        // validator.validateForm(formInput)
         
         // const id = await generatorService.createCampaign(formInput);
         // const responseBody = { id };
