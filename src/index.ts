@@ -23,26 +23,28 @@ index.post('/campaigns/generate', cors(), function(req, res) {
             const validator = new CampaignFormValidator()
             const formInput = body as CampaignFormResponse
 
-            validator.validateForm(formInput)
+            // validator.validateForm(formInput)
             
-            generatorService
-                .createCampaign(formInput)
-                .catch((error) => {
-                    console.log("Failed to generate a new campaign: " + error)
-                    res.status(400).send("Failed to generate a campaign")
-                })
-                .then((id) => {
-                    try {
-                        const responseBody = {
-                            id: id
-                        }
-                        console.log("Sending generate campaign response body: " + responseBody)
-                        res.status(200).send(JSON.stringify(responseBody))
-                    } catch (error) {
-                        console.log("Failed to send response: " + error)
-                    }
-                    return  
-                })
+            // generatorService
+            //     .createCampaign(formInput)
+            //     .catch((error) => {
+            //         console.log("Failed to generate a new campaign: " + error)
+            //         res.status(400).send("Failed to generate a campaign")
+            //     })
+            //     .then((id) => {
+            //         try {
+            //             const responseBody = {
+            //                 id: id
+            //             }
+            //             console.log("Sending generate campaign response body: " + responseBody)
+            //             res.status(200).send(JSON.stringify(responseBody))
+            //         } catch (error) {
+            //             console.log("Failed to send response: " + error)
+            //         }
+            //         return  
+            //     })
+
+            res.status(200).send("No Cors")
         } catch(e) {
             console.log("Invalid input form: " + e)
             res.status(400).send("Invalid input parameters")
