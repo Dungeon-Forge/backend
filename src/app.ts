@@ -1,5 +1,4 @@
 import express from "express";
-import {index} from "./index";
 import { GeneratorService } from "./services/generator/generator-service";
 import { CampaignFormValidator } from "./services/form-validator/form-validator";
 import { CampaignFormResponse } from "./models/campaign-form-response";
