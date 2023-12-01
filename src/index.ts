@@ -11,6 +11,7 @@ const generatorService = new GeneratorService();
 index.post('/campaigns/generate', cors(), async function(req, res) {
     try {
         console.log("Received generate request...")
+        res.removeHeader('Access-Control-Allow-Origin')
         res.set('Access-Control-Allow-Origin', '*');
         res.set('Access-Control-Allow-Methods', 'POST')
     
