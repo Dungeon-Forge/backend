@@ -14,6 +14,7 @@ app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     next();
 });
+app.options('*', cors())
 app.use("/", index);
 
 const port = process.env.PORT || 8080;
