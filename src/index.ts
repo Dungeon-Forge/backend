@@ -11,7 +11,7 @@ const generatorService = new GeneratorService();
 index.post('/campaigns/generate', cors(), function(req, res) {
     console.log("Received generate request...")
     res.set('Access-Control-Allow-Origin', '*');
-    res.set('Access-Control-Allow-Methods', 'POST')
+    res.set('Access-Control-Allow-Methods', 'POST');
 
     console.log(req.body)
     const body = req.body
@@ -27,10 +27,6 @@ index.post('/campaigns/generate', cors(), function(req, res) {
             
             generatorService
                 .createCampaign(formInput)
-                .catch((error) => {
-                    console.log("Failed to generate a new campaign: " + error)
-                    res.status(400).send("Failed to generate a campaign")
-                })
                 .then((id) => {
                     try {
                         const responseBody = {
@@ -42,6 +38,10 @@ index.post('/campaigns/generate', cors(), function(req, res) {
                         console.log("Failed to send response: " + error)
                     }
                     return  
+                })
+                .catch((error) => {
+                    console.log("Failed to generate a new campaign: " + error)
+                    res.status(400).send("Failed to generate a campaign")
                 })
         } catch(e) {
             console.log("Invalid input form: " + e)
