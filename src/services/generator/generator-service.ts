@@ -20,36 +20,36 @@ export class GeneratorService {
   createCampaign(preferences: CampaignFormResponse): Promise<string> {
     return new Promise((resolve, reject) => {
       this.buildHtml(preferences)
-      .catch((error: Error) => {
-        reject(error)
-      })
-      .then((content) => {
-        logger.log("Generated content: " + content + "\n\n Writing data to file...")
-        try {
-          fs.writeFile(this.campaignFile, content, async (err: Error) => { 
-            if(err) { 
-              reject(err)
-            }
-            logger.log("Data has been written to file successfully."); 
-            
-            if (shell.exec(`pagedjs-cli ${ this.campaignFile } -o ${ this.outputFile }`).code !== 0) {
-              shell.echo('Error: Failed to generate campaign PDF');
-              shell.exit(1);
-              reject(new Error("Error: Failed to generate campaign PDF"))
-            }
-      
-            const newID: string = uuidv4();
-            try {
-              const url = await this.saveCampaign(newID);
-              resolve(newID);
-            } catch(err) {
-              reject(err);
-            }
-          }); 
-        } catch(error) {
+        .then((content) => {
+          logger.log("Generated content: " + content + "\n\n Writing data to file...")
+          try {
+            fs.writeFile(this.campaignFile, content, async (err: Error) => { 
+              if(err) { 
+                reject(err)
+              }
+              logger.log("Data has been written to file successfully."); 
+              
+              if (shell.exec(`pagedjs-cli ${ this.campaignFile } -o ${ this.outputFile }`).code !== 0) {
+                shell.echo('Error: Failed to generate campaign PDF');
+                shell.exit(1);
+                reject(new Error("Error: Failed to generate campaign PDF"))
+              }
+        
+              const newID: string = uuidv4();
+              try {
+                const url = await this.saveCampaign(newID);
+                resolve(newID);
+              } catch(err) {
+                reject(err);
+              }
+            }); 
+          } catch(error) {
+            reject(error)
+          }
+        })
+        .catch((error: Error) => {
           reject(error)
-        }
-      })
+        })
     })
     
   }
@@ -108,9 +108,6 @@ export class GeneratorService {
   private buildHtml(form: CampaignFormResponse): Promise<string> {
     return new Promise((resolve, reject) => {
       this.openAIGenerator.generateCampaign(form)
-        .catch((error: Error) => {
-          reject(error);
-        })
         .then((content: string | void) => {
           logger.log("Final generated content: " + content)
 
@@ -134,6 +131,9 @@ export class GeneratorService {
           </body>
           </html>
           `)
+        })
+        .catch((error: Error) => {
+          reject(error);
         })
     })
   }

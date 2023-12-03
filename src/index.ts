@@ -31,21 +31,16 @@ index.post('/campaigns/generate', cors(), function(req, res) {
             
             generatorService
                 .createCampaign(formInput)
+                .then((id) => {
+                    const responseBody = {
+                        id: id
+                    }
+                    logger.log("Sending generate campaign response body: " + responseBody)
+                    res.status(200).send(JSON.stringify(responseBody))
+                })
                 .catch((error) => {
                     logger.log("Failed to generate a new campaign: " + error)
                     res.status(400).send("Failed to generate a campaign")
-                })
-                .then((id) => {
-                    try {
-                        const responseBody = {
-                            id: id
-                        }
-                        logger.log("Sending generate campaign response body: " + responseBody)
-                        res.status(200).send(JSON.stringify(responseBody))
-                    } catch (error) {
-                        logger.log("Failed to send response: " + error)
-                    }
-                    return  
                 })
         } catch(e) {
             logger.log("Invalid input form: " + e)
