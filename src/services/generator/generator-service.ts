@@ -13,8 +13,8 @@ var shell = require('shelljs');
 const logger = new LoggerRepository([new ConsoleLogger(), new FileLogger()])
 
 export class GeneratorService {
-  campaignFile = "campaign.html"
-  outputFile = "campaign.pdf"
+  campaignFile = "~/campaign.html"
+  outputFile = "~/campaign.pdf"
   openAIGenerator = new OpenAICampaignGenerator()
 
   createCampaign(preferences: CampaignFormResponse): Promise<string> {
