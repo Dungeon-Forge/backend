@@ -3,6 +3,11 @@ import { response } from "express";
 import OpenAI from "openai";
 import { CampaignFormResponse } from "../../models/campaign-form-response";
 import { AdventureHook, CampaignSetting, DungeonArc, FinalResolution, Hazard, SideQuestArc, TravelAdventureArc } from "./generator-interfaces";
+import { LoggerRepository } from "../logger/LoggerRepository";
+import { ConsoleLogger } from "../logger/ConsoleLogger";
+import { FileLogger } from "../logger/FileLogger";
+
+const logger = new LoggerRepository([new ConsoleLogger(), new FileLogger()])
 
 export class OpenAICampaignGenerator {
     openai = new OpenAI({
@@ -32,7 +37,7 @@ export class OpenAICampaignGenerator {
 
                 resolve(responseHTML)
             } catch(err) {
-                console.log("Failed to generate a campaign: " + err);
+                logger.log("Failed to generate a campaign: " + err);
                 reject(err);
             }
         })
@@ -50,7 +55,7 @@ export class OpenAICampaignGenerator {
 
     private async generateCampaignSetting(): Promise<string> {
         return new Promise(async (resolve, reject) => {
-            console.log("Sending campaign setting generation request to Open AI")
+            logger.log("Sending campaign setting generation request to Open AI")
             const completion = await this.openai.chat.completions.create({
                 messages: [{ role: "user", content: `create a new campaign setting for a dungeons and dragons 5e setting. Describe the name, territory, political environment, and recent history leading up to the campaign. 
                 Format the response according to the following JSON format: 
@@ -77,7 +82,7 @@ export class OpenAICampaignGenerator {
 
             if (content != null) {
                 var responseHTML = ""
-                console.log("Received campaign setting response from OpenAI: " + content)
+                logger.log("Received campaign setting response from OpenAI: " + content)
 
                 try {
                     const jsonResponse: CampaignSetting = JSON.parse(content)
@@ -104,7 +109,7 @@ export class OpenAICampaignGenerator {
 
                     resolve(responseHTML)
                 } catch (error) {
-                    console.log("failed to parse campaign setting: " + error + content)
+                    logger.log("failed to parse campaign setting: " + error + content)
                     reject(error);
                 }
             } else {
@@ -116,7 +121,7 @@ export class OpenAICampaignGenerator {
 
     private async generateAdventureHook(campaignSetting: string): Promise<string> {
         return new Promise(async (resolve, reject) => {
-            console.log("Sending adventure hook generation request to Open AI")
+            logger.log("Sending adventure hook generation request to Open AI")
             const completion = await this.openai.chat.completions.create({
                 messages: [{ role: "user", content: `define an adventure hook for a group of adventures within the ${campaignSetting} setting. Describe the location in which the adventurers meet, and provide background on important figures met within the adventure hook. The adventure hook should also introduce the plot line of the new campaign. Describe the key locations within the location, including taverns, shops, and government buildings. For all ability checks needed within the adventure hook, provide difficulty checks according to standard dungeon's and dragons DC rules.
                 Format the output according to the following JSON: 
@@ -152,7 +157,7 @@ export class OpenAICampaignGenerator {
             const content = this.cleanJSONResponse(result.message.content)
             if (content != null) {
                 try {
-                    console.log("Received adventure hook from OpenAI: " + content)
+                    logger.log("Received adventure hook from OpenAI: " + content)
                     const jsonResponse: AdventureHook = JSON.parse(content)
                     var responseHTML = ``
                     responseHTML += `<h2>${jsonResponse.title}</h2>\n`
@@ -188,7 +193,7 @@ export class OpenAICampaignGenerator {
 
                     resolve(responseHTML)
                 } catch (error) {
-                    console.log("failed to parse adventure hook: " + error + content)
+                    logger.log("failed to parse adventure hook: " + error + content)
                     reject(error)
                 }
             } else {
@@ -221,14 +226,14 @@ export class OpenAICampaignGenerator {
 
                 resolve(content)
             } catch(error) {
-                console.log("failed to generate campaign acrs: " + error + content)
+                logger.log("failed to generate campaign acrs: " + error + content)
                 reject(error)
             }
         })
     }
 
     private async generateMidCampaignAdventureArc(form: CampaignFormResponse, currentLevel: number, previousAdventureType: AdventureType): Promise<string> {
-        console.log("Generating a mid cmapaign adventure arc")
+        logger.log("Generating a mid cmapaign adventure arc")
         return new Promise(async (resolve, reject) => {
             const adventureType = this.determineAdventureType(previousAdventureType)
             this.previousAdventureType = adventureType
@@ -241,7 +246,7 @@ export class OpenAICampaignGenerator {
                     resolve(await this.generateTravelAdventureArc(form, currentLevel))
                 }
             } catch(error) {
-                console.log("failed to generate mid campaign adventure arc: " + error)
+                logger.log("failed to generate mid campaign adventure arc: " + error)
                 reject(error)
             }
         })
@@ -249,7 +254,7 @@ export class OpenAICampaignGenerator {
 
     private async generateDungeonAdventureArc(form: CampaignFormResponse, currentLevel: number): Promise<string> {
         return new Promise(async (resolve, reject) => {
-            console.log("Sending dungeon adventure arc generation request to Open AI")
+            logger.log("Sending dungeon adventure arc generation request to Open AI")
 
             const numberOfChambers = this.determineNumberOfEventsInAdventure(form.numPlayerCharacters, currentLevel)
 
@@ -322,7 +327,7 @@ export class OpenAICampaignGenerator {
             const content = this.cleanJSONResponse(result.message.content)
 
             if (content != null) {
-                console.log("Received dungeon adventure arc from OpenAI: " + content)
+                logger.log("Received dungeon adventure arc from OpenAI: " + content)
 
                 try {
                     const jsonResponse: DungeonArc = JSON.parse(content)
@@ -359,7 +364,7 @@ export class OpenAICampaignGenerator {
 
                     resolve(output)
                 } catch (error) {
-                    console.log("failed to dungeon campaign arc: " + error + content)
+                    logger.log("failed to dungeon campaign arc: " + error + content)
                     reject(error)
                 }
             } else {
@@ -370,7 +375,7 @@ export class OpenAICampaignGenerator {
 
     private async generateSideQuestAdventureArc(form: CampaignFormResponse, currentLevel: number): Promise<string> {
         return new Promise(async (resolve, reject) => {
-            console.log("Sending side quest adventure arc generation request to Open AI")
+            logger.log("Sending side quest adventure arc generation request to Open AI")
             const numberOfSideQuests = this.determineNumberOfEventsInAdventure(form.numPlayerCharacters, currentLevel)
 
             const generationRequest = `
@@ -413,7 +418,7 @@ export class OpenAICampaignGenerator {
             
 
             if (content != null) {
-                console.log("Received side quest adventure arc from OpenAI: " + content)
+                logger.log("Received side quest adventure arc from OpenAI: " + content)
 
                 try {
                     const jsonResponse: SideQuestArc = JSON.parse(content)
@@ -462,7 +467,7 @@ export class OpenAICampaignGenerator {
 
                     resolve(output)
                 } catch (error) {
-                    console.log("failed to side quest adventure arc: " + error + content)
+                    logger.log("failed to side quest adventure arc: " + error + content)
                     reject(error)
                 }
             } else {
@@ -473,7 +478,7 @@ export class OpenAICampaignGenerator {
 
     private async generateTravelAdventureArc(form: CampaignFormResponse, currentLevel: number): Promise<string> {
         return new Promise(async (resolve, reject) => {
-            console.log("Sending travel adventure arc generation request to Open AI")
+            logger.log("Sending travel adventure arc generation request to Open AI")
 
             const generationRequest = `
                 the group of adventurers must travel to a different area of the setting to accomplish their quest. Describe why the adventurers must travel to that location.
@@ -522,7 +527,7 @@ export class OpenAICampaignGenerator {
 
             const content = this.cleanJSONResponse(result.message.content)
             if (content != null) {
-                console.log("Received travel adventure arc from OpenAI: " + content)
+                logger.log("Received travel adventure arc from OpenAI: " + content)
 
                 try {
                     const jsonResponse: TravelAdventureArc = JSON.parse(content)
@@ -607,7 +612,7 @@ export class OpenAICampaignGenerator {
 
                     resolve(output)
                 } catch (error) {
-                    console.log("failed to generate travel adventure arc: " + error + content)
+                    logger.log("failed to generate travel adventure arc: " + error + content)
                     reject(error)
                 }
             } else {
@@ -634,7 +639,7 @@ export class OpenAICampaignGenerator {
 
     private async generateFinalCampaignAdventureArc(form: CampaignFormResponse, currentLevel: number): Promise<string> {
         return new Promise(async (resolve, reject) => {
-            console.log("Sending final adventure arc generation request to Open AI")
+            logger.log("Sending final adventure arc generation request to Open AI")
 
             const numberOfChambers = this.determineNumberOfEventsInAdventure(form.numPlayerCharacters, currentLevel)
 
@@ -717,7 +722,7 @@ export class OpenAICampaignGenerator {
             const content = this.cleanJSONResponse(result.message.content)
 
             if (content != null) {
-                console.log("Received final adventure arc from OpenAI: " + content)
+                logger.log("Received final adventure arc from OpenAI: " + content)
 
                 try {
                     const jsonResponse: DungeonArc = JSON.parse(content)
@@ -754,7 +759,7 @@ export class OpenAICampaignGenerator {
 
                     resolve(output)
                 } catch (error) {
-                    console.log("failed to generate final adventure arc: " + error + content)
+                    logger.log("failed to generate final adventure arc: " + error + content)
                     reject(error)
                 }
             } else {
@@ -765,7 +770,7 @@ export class OpenAICampaignGenerator {
 
     private async generateFinalResolution(): Promise<string> {
         return new Promise(async (resolve, reject) => {
-            console.log("Sending final resolution generation request to Open AI")
+            logger.log("Sending final resolution generation request to Open AI")
 
             var generationRequest = `
                 Now that the adventurers have finished their quest, describe how the world has changed because of their heroic actions. What rewards have they received? Are they given any special honors?
@@ -793,7 +798,7 @@ export class OpenAICampaignGenerator {
             const content = this.cleanJSONResponse(result.message.content)
 
             if (content != null) {
-                console.log("Received final resolution from OpenAI: " + content)
+                logger.log("Received final resolution from OpenAI: " + content)
 
                 try {
                     const jsonResponse: FinalResolution = JSON.parse(content)
@@ -812,7 +817,7 @@ export class OpenAICampaignGenerator {
 
                     resolve(output)
                 } catch (error) {
-                    console.log("failed to parse final resolution: " + error + content)
+                    logger.log("failed to parse final resolution: " + error + content)
                     reject(error)
                 }
             } else {
@@ -824,7 +829,7 @@ export class OpenAICampaignGenerator {
     // The number of adventure arcs assumes the players each gain 2 levels per adventure arc
     private determineNumberOfAdventureArcs(numPlayers: number, numLevels: number): number {
         const result = Math.min(Math.floor(numLevels / 2), 1) + Math.min(numPlayers, 5)
-        console.log(`Generating ${result} adventure arcs`)
+        logger.log(`Generating ${result} adventure arcs`)
         return result
     }
     
@@ -843,7 +848,7 @@ export class OpenAICampaignGenerator {
         // The number events should be the twice the number of players plus the current level of the players / 4 with a minimum of 1
         const levelOffset = Math.min(Math.floor(level / 5), 1)
         const result = Math.min((2 * numPlayers), 5) + levelOffset
-        console.log(`Generating ${result} events within the adventure`)
+        logger.log(`Generating ${result} events within the adventure`)
         return result
     }
 

@@ -1,4 +1,7 @@
 import { CampaignFormResponse } from "../../models/campaign-form-response";
+import { ConsoleLogger } from "../logger/ConsoleLogger";
+import { FileLogger } from "../logger/FileLogger";
+import { LoggerRepository } from "../logger/LoggerRepository";
 import { styleContent } from "./campaign-style-content";
 import { OpenAICampaignGenerator } from "./open-ai-campaign-generator";
 const { v4: uuidv4 } = require('uuid');
@@ -6,6 +9,8 @@ const AWS = require('aws-sdk');
 
 var fs = require('fs');
 var shell = require('shelljs');
+
+const logger = new LoggerRepository([new ConsoleLogger(), new FileLogger()])
 
 export class GeneratorService {
   campaignFile = "campaign.html"
@@ -19,13 +24,13 @@ export class GeneratorService {
         reject(error)
       })
       .then((content) => {
-        console.log("Generated content: " + content + "\n\n Writing data to file...")
+        logger.log("Generated content: " + content + "\n\n Writing data to file...")
         try {
           fs.writeFile(this.campaignFile, content, async (err: Error) => { 
             if(err) { 
               reject(err)
             }
-            console.log("Data has been written to file successfully."); 
+            logger.log("Data has been written to file successfully."); 
             
             if (shell.exec(`pagedjs-cli ${ this.campaignFile } -o ${ this.outputFile }`).code !== 0) {
               shell.echo('Error: Failed to generate campaign PDF');
@@ -72,10 +77,10 @@ export class GeneratorService {
 
         await s3.upload(pdfUploadParams, function(err: Error, data: any) {
           if (err) {
-            console.log("PDF upload failed: " + err);
+            logger.log("PDF upload failed: " + err);
             reject(err)
           }
-          console.log(`PDF file uploaded successfully. ${data.Location}`);
+          logger.log(`PDF file uploaded successfully. ${data.Location}`);
           resolve(data.location)
         });
 
@@ -91,10 +96,10 @@ export class GeneratorService {
           if (err) {
               throw err;
           }
-          console.log(`HTML file uploaded successfully. ${data.Location}`);
+          logger.log(`HTML file uploaded successfully. ${data.Location}`);
         });
       } catch (error) {
-        console.log("Failed to save the campaign: " + error)
+        logger.log("Failed to save the campaign: " + error)
         reject(error)
       }
     })
@@ -107,7 +112,7 @@ export class GeneratorService {
           reject(error);
         })
         .then((content: string | void) => {
-          console.log("Final generated content: " + content)
+          logger.log("Final generated content: " + content)
 
           if (content === undefined) {
             reject("Failed to generate the campaign because the final content was nil")

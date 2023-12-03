@@ -2,18 +2,22 @@ import express from "express";
 import { GeneratorService } from "./services/generator/generator-service";
 import { CampaignFormValidator } from "./services/form-validator/form-validator";
 import { CampaignFormResponse } from "./models/campaign-form-response";
+import { LoggerRepository } from "./services/logger/LoggerRepository";
+import { ConsoleLogger } from "./services/logger/ConsoleLogger";
+import { FileLogger } from "./services/logger/FileLogger";
 
 var cors = require('cors')
 const index = express.Router();
 
 const generatorService = new GeneratorService();
+const logger = new LoggerRepository([new ConsoleLogger(), new FileLogger()])
 
 index.post('/campaigns/generate', cors(), function(req, res) {
-    console.log("Received generate request...")
+    logger.log("Received generate request...")
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'POST')
 
-    console.log(req.body)
+    logger.log(req.body)
     const body = req.body
 
     if (Object.keys(body).length === 0) {
@@ -28,7 +32,7 @@ index.post('/campaigns/generate', cors(), function(req, res) {
             generatorService
                 .createCampaign(formInput)
                 .catch((error) => {
-                    console.log("Failed to generate a new campaign: " + error)
+                    logger.log("Failed to generate a new campaign: " + error)
                     res.status(400).send("Failed to generate a campaign")
                 })
                 .then((id) => {
@@ -36,15 +40,15 @@ index.post('/campaigns/generate', cors(), function(req, res) {
                         const responseBody = {
                             id: id
                         }
-                        console.log("Sending generate campaign response body: " + responseBody)
+                        logger.log("Sending generate campaign response body: " + responseBody)
                         res.status(200).send(JSON.stringify(responseBody))
                     } catch (error) {
-                        console.log("Failed to send response: " + error)
+                        logger.log("Failed to send response: " + error)
                     }
                     return  
                 })
         } catch(e) {
-            console.log("Invalid input form: " + e)
+            logger.log("Invalid input form: " + e)
             res.status(400).send("Invalid input parameters")
         }
     }
