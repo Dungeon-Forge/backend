@@ -884,9 +884,9 @@ export class OpenAICampaignGenerator {
             return response
         }
 
-        var finalResponse = response.replace(new RegExp(".*,[\s]*\\}", 'g'), "\n}");
-        finalResponse = finalResponse.replace(new RegExp(".*,[\s]*\\]", 'g'), "],\n")
-        finalResponse = finalResponse.replace(new RegExp(".*\\],[\s]*\\}", 'g'), "]\n}")
+        var finalResponse = response.replace(new RegExp(".*,[\s\\n]*\}", 'g'), "\n}");
+        finalResponse = finalResponse.replace(new RegExp(".*,[\s\\n]*\]", 'g'), "],\n")
+        finalResponse = finalResponse.replace(new RegExp(".*\],[\s\\n]*\}", 'g'), "]\n}")
         return finalResponse
     }
 }
