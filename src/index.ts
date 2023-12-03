@@ -17,6 +17,11 @@ index.post('/campaigns/generate', cors(), function(req, res) {
     res.set('Access-Control-Allow-Origin', '*');
     res.set('Access-Control-Allow-Methods', 'POST')
 
+    req.setTimeout(12000000, () => {
+        logger.log(`Generate campaign request timed out`)
+        res.status(408).send()
+    })
+
     logger.log(req.body)
     const body = req.body
 
