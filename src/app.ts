@@ -18,6 +18,7 @@ app.use("/", index);
 
 const port = process.env.PORT || 8080;
 
-app.listen(port, () => {
+var server = app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
+server.timeout = 0
