@@ -25,4 +25,4 @@ const port = process.env.PORT || 8080;
 var server = app.listen(port, () => {
     logger.log(`Server running at http://localhost:${port}`);
 });
-server.timeout = 0
+server.timeout = 1200000
