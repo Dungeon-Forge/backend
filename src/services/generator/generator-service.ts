@@ -13,18 +13,19 @@ var shell = require('shelljs');
 const logger = new LoggerRepository([new ConsoleLogger(), new FileLogger()])
 
 export class GeneratorService {
-  campaignFile = "~/campaign.html"
-  outputFile = "~/campaign.pdf"
+  campaignFile = "/tmp/campaign.html"
+  outputFile = "/tmp/campaign.pdf"
   openAIGenerator = new OpenAICampaignGenerator()
 
   createCampaign(preferences: CampaignFormResponse): Promise<string> {
     return new Promise((resolve, reject) => {
       this.buildHtml(preferences)
         .then((content) => {
-          logger.log("Generated content: " + content + "\n\n Writing data to file...")
+          logger.log("Writing data to file...")
           try {
             fs.writeFile(this.campaignFile, content, async (err: Error) => { 
               if(err) { 
+                logger.log(`Failed to write generated campaign to file: ${err}`)
                 reject(err)
               }
               logger.log("Data has been written to file successfully."); 
