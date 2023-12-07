@@ -7,8 +7,9 @@ import { OpenAICampaignGenerator } from "./open-ai-campaign-generator";
 const { v4: uuidv4 } = require('uuid');
 const AWS = require('aws-sdk');
 
-var fs = require('fs');
-var shell = require('shelljs');
+const fs = require('fs');
+const fsPromises = require('fs').promises; 
+const shell = require('shelljs');
 
 const logger = new LoggerRepository([new ConsoleLogger(), new FileLogger()])
 
@@ -20,31 +21,26 @@ export class GeneratorService {
   createCampaign(preferences: CampaignFormResponse): Promise<string> {
     return new Promise((resolve, reject) => {
       this.buildHtml(preferences)
-        .then((content) => {
+        .then(async (content) => {
           logger.log("Writing data to file...")
           try {
-            fs.writeFile(this.campaignFile, content, async (err: Error) => { 
-              if(err) { 
-                logger.log(`Failed to write generated campaign to file: ${err}`)
-                reject(err)
-              }
-              logger.log("Data has been written to file successfully."); 
+            await fsPromises.writeFile(this.campaignFile, content) 
+            logger.log("Data has been written to file successfully."); 
               
-              if (shell.exec(`pagedjs-cli ${ this.campaignFile } -o ${ this.outputFile }`).code !== 0) {
-                logger.log('Error: Failed to generate campaign PDF using pagedjs-cli')
-                shell.exit(1);
-                reject(new Error("Error: Failed to generate campaign PDF"))
-              }
-        
-              const newID: string = uuidv4();
-              try {
-                const url = await this.saveCampaign(newID);
-                resolve(newID);
-              } catch(err) {
-                logger.log(`Error: Failed to save a campaign with id ${newID} with error: ${err}`)
-                reject(err);
-              }
-            }); 
+            if (shell.exec(`pagedjs-cli ${ this.campaignFile } -o ${ this.outputFile }`).code !== 0) {
+              logger.log('Error: Failed to generate campaign PDF using pagedjs-cli')
+              shell.exit(1);
+              reject(new Error("Error: Failed to generate campaign PDF"))
+            }
+      
+            const newID: string = uuidv4();
+            try {
+              const url = await this.saveCampaign(newID);
+              resolve(newID);
+            } catch(err) {
+              logger.log(`Error: Failed to save a campaign with id ${newID} with error: ${err}`)
+              reject(err);
+            }
           } catch(error) {
             logger.log(`Error: Failed to save a campaign data to file with error: ${error}`)
             reject(error)
@@ -102,6 +98,9 @@ export class GeneratorService {
           }
           logger.log(`HTML file uploaded successfully. ${data.Location}`);
         });
+        
+        await fsPromises.unlink(this.campaignFile);
+        await fsPromises.unlink(this.outputFile);
       } catch (error) {
         logger.log("Failed to save the campaign: " + error)
         reject(error)
