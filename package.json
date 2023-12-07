@@ -55,5 +55,8 @@
     "coveragePathIgnorePatterns": [
       "/node_modules/"
     ]
+  },
+  "nodemonConfig": {
+    "ignore": ["/tmp/campaign.html", "/tmp/campaign.pdf"]
   }
 }
