@@ -30,3 +30,7 @@ server.setTimeout(12000000, () => {
     logger.log('Request timed out');
     server.closeIdleConnections();
 });
+
+process.on('unhandledRejection', (reason, promise) => {
+    logger.log('Unhandled Rejection at: ${reason}')
+})
