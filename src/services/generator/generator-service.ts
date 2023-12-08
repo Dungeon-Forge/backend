@@ -1,4 +1,6 @@
 import { CampaignFormResponse } from "../../models/campaign-form-response";
+import { DatabaseReading } from "../database/database-reading";
+import { RDSDatabaseAccess } from "../database/rds-database-access";
 import { ConsoleLogger } from "../logger/ConsoleLogger";
 import { FileLogger } from "../logger/FileLogger";
 import { LoggerRepository } from "../logger/LoggerRepository";
@@ -14,9 +16,10 @@ const shell = require('shelljs');
 const logger = new LoggerRepository([new ConsoleLogger(), new FileLogger()])
 
 export class GeneratorService {
-  campaignFile = "/tmp/campaign.html"
-  outputFile = "/tmp/campaign.pdf"
+  campaignFile = "campaign.html"
+  outputFile = "campaign.pdf"
   openAIGenerator = new OpenAICampaignGenerator()
+  dbAccess: DatabaseReading = new RDSDatabaseAccess()
 
   createCampaign(preferences: CampaignFormResponse): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -54,8 +57,9 @@ export class GeneratorService {
     
   }
 
-  getCampaign(id: string) {
-    
+  getCampaign(id: string): Promise<string> {
+    logger.log(`Fetching campaign with id: ${id}`)
+    return this.dbAccess.fetchCampaign(id)
   }
 
   private async saveCampaign(id: string): Promise<string> {
@@ -75,32 +79,41 @@ export class GeneratorService {
           Body: pdfFileStream
         }
 
-        await s3.upload(pdfUploadParams, function(err: Error, data: any) {
+        const campaignFile = this.campaignFile
+        const dbAccess = this.dbAccess
+
+        await s3.upload(pdfUploadParams, async function(err: Error, data: any) {
           if (err) {
             logger.log("PDF upload failed: " + err);
             reject(err)
           }
-          logger.log(`PDF file uploaded successfully. ${data.Location}`);
-          resolve(data.location)
-        });
+          const pdfURL = `https://${pdfbucketName}.s3.amazonaws.com/${id}.pdf`
+          logger.log(`PDF file uploaded successfully. ${pdfURL}`);
 
-        const htmlFileStream = fs.createReadStream(this.campaignFile)
-        const htmlbucketName = process.env.HTML_BUCKET_NAME;
-        const htmlUploadParams =  {
-          Bucket: htmlbucketName,
-          Key: `${id}.html`,
-          Body: htmlFileStream
-        }
-
-        await s3.upload(htmlUploadParams, function(err: Error, data: any) {
-          if (err) {
-              throw err;
+          const htmlFileStream = fs.createReadStream(campaignFile)
+          const htmlbucketName = process.env.HTML_BUCKET_NAME;
+          const htmlUploadParams =  {
+            Bucket: htmlbucketName,
+            Key: `${id}.html`,
+            Body: htmlFileStream
           }
-          logger.log(`HTML file uploaded successfully. ${data.Location}`);
+
+          await s3.upload(htmlUploadParams, function(err: Error, data: any) {
+            if (err) {
+                throw err;
+            }
+            const htmlURL = `https://${htmlbucketName}.s3.amazonaws.com/${id}.html`
+            logger.log(`HTML file uploaded successfully. ${htmlURL}`);
+
+            try {
+              dbAccess.saveCampaign(id, pdfURL, htmlURL)
+              resolve(id)
+            } catch (error) {
+              logger.log("Failed to save campaign to DB: " + error)
+              reject(error)
+            }
+          });
         });
-        
-        await fsPromises.unlink(this.campaignFile);
-        await fsPromises.unlink(this.outputFile);
       } catch (error) {
         logger.log("Failed to save the campaign: " + error)
         reject(error)
