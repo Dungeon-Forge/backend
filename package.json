@@ -25,6 +25,7 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "mysql": "^2.18.1",
+    "mysql-async-simple": "^1.0.3",
     "mysql2": "^3.6.5",
     "npm": "^10.2.4",
     "openai": "^4.20.0",
@@ -57,6 +58,9 @@
     ]
   },
   "nodemonConfig": {
-    "ignore": ["/tmp/campaign.html", "/tmp/campaign.pdf"]
+    "ignore": [
+      "/tmp/campaign.html",
+      "/tmp/campaign.pdf"
+    ]
   }
 }
