@@ -29,7 +29,8 @@ export class GeneratorService {
         .then(async (content) => {
           logger.log("Writing data to file...")
           try {
-            await fsPromises.writeFile(this.campaignFile, content) 
+            await fsPromises.unlinkFile(this.campaignFile)
+            await fsPromises.appendFile(this.campaignFile, content) 
             logger.log("Data has been written to file successfully."); 
               
             if (shell.exec(`pagedjs-cli ${ this.campaignFile } -o ${ this.outputFile }`).code !== 0) {
