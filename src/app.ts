@@ -32,5 +32,9 @@ server.setTimeout(12000000, () => {
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-    logger.log('Unhandled Rejection at: ${reason}')
+    logger.log(`Unhandled Rejection at: ${reason}`)
 })
+
+process.on('uncaughtException', function (exception) {
+    logger.log(`Uncaught Exception: ${exception.message}`);
+});
