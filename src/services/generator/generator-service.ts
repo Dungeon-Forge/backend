@@ -6,6 +6,8 @@ import { FileLogger } from "../logger/FileLogger";
 import { LoggerRepository } from "../logger/LoggerRepository";
 import { styleContent } from "./campaign-style-content";
 import { OpenAICampaignGenerator } from "./open-ai-campaign-generator";
+import os from 'os';
+
 const { v4: uuidv4 } = require('uuid');
 const AWS = require('aws-sdk');
 
@@ -16,8 +18,8 @@ const shell = require('shelljs');
 const logger = new LoggerRepository([new ConsoleLogger(), new FileLogger()])
 
 export class GeneratorService {
-  campaignFile = "campaign.html"
-  outputFile = "campaign.pdf"
+  campaignFile = os.tmpdir() + "/campaign.html"
+  outputFile = os.tmpdir() + "/campaign.pdf"
   openAIGenerator = new OpenAICampaignGenerator()
   dbAccess: DatabaseReading = new RDSDatabaseAccess()
 
