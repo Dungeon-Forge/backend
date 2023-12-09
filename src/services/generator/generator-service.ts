@@ -29,26 +29,27 @@ export class GeneratorService {
         .then(async (content) => {
           logger.log("Writing data to file...")
           try {
-            await fs.unlink(this.campaignFile)
-            await fsPromises.appendFile(this.campaignFile, content) 
-            logger.log("Data has been written to file successfully."); 
-              
-            if (shell.exec(`pagedjs-cli ${ this.campaignFile } -o ${ this.outputFile }`).code !== 0) {
-              logger.log('Error: Failed to generate campaign PDF using pagedjs-cli')
-              shell.exit(1);
-              reject(new Error("Error: Failed to generate campaign PDF"))
-            }
-      
-            const newID: string = uuidv4();
-            try {
-              const url = await this.saveCampaign(newID);
-              resolve(newID);
-            } catch(err) {
-              logger.log(`Error: Failed to save a campaign with id ${newID} with error: ${err}`)
-              reject(err);
-            }
+            await fs.unlink(this.campaignFile, async (error: any) => {
+              await fsPromises.appendFile(this.campaignFile, content) 
+              logger.log("Data has been written to file successfully."); 
+                
+              if (shell.exec(`pagedjs-cli ${ this.campaignFile } -o ${ this.outputFile }`).code !== 0) {
+                logger.log('Error: Failed to generate campaign PDF using pagedjs-cli')
+                shell.exit(1);
+                reject(new Error("Error: Failed to generate campaign PDF"))
+              }
+        
+              const newID: string = uuidv4();
+              try {
+                const url = await this.saveCampaign(newID);
+                resolve(newID);
+              } catch(err) {
+                logger.log(`Error: Failed to save a campaign with id ${newID} with error: ${err}`)
+                reject(err);
+              }
+              })
           } catch(error) {
-            logger.log(`Error: Failed to save a campaign data to file with error: ${error}`)
+            logger.log(`Error: Failed to delete the temp campaign file with error: ${error}`)
             reject(error)
           }
         })
