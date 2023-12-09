@@ -40,7 +40,7 @@ index.post('/campaigns/generate', cors(), function(req, res) {
                     const responseBody = {
                         id: id
                     }
-                    logger.log("Sending generate campaign response body: " + responseBody)
+                    logger.log("Sending generate campaign response body: " + JSON.stringify(responseBody))
                     res.status(200).send(JSON.stringify(responseBody))
                 })
                 .catch((error) => {
