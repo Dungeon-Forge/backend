@@ -288,20 +288,27 @@ export class OpenAICampaignGenerator {
     }
 
     private async generateMidCampaignAdventureArc(form: CampaignFormResponse, currentLevel: number, previousAdventureType: AdventureType): Promise<string> {
-        logger.log("Generating a mid cmapaign adventure arc")
         return new Promise(async (resolve, reject) => {
             const adventureType = this.determineAdventureType(previousAdventureType)
+            logger.log(`Generating a ${adventureType} mid cmapaign adventure arc`)
             this.previousAdventureType = adventureType
             try {
-                switch(adventureType) {
-                    case AdventureType.DUNGEON: {
+                switch(adventureType.toString) {
+                    case AdventureType.DUNGEON.toString: {
                         resolve(await this.generateDungeonAdventureArc(form, currentLevel))
+                        break;
                     }
-                    case AdventureType.SIDEQUEST: {
+                    case AdventureType.SIDEQUEST.toString: {
                         resolve(await this.generateSideQuestAdventureArc(form, currentLevel))
+                        break;
                     }
-                    case AdventureType.TRAVEL: {
+                    case AdventureType.TRAVEL.toString: {
                         resolve(await this.generateTravelAdventureArc(form, currentLevel))
+                        break;
+                    }
+                    default: {
+                        reject(new Error("Unknown Adventure Type Chosen"))
+                        break;
                     }
                 }
             } catch(error) {
@@ -1049,7 +1056,7 @@ export class OpenAICampaignGenerator {
         return result
     }
     
-    determineAdventureType(previousAdventureType: AdventureType): AdventureType {
+    determineAdventureType(previousAdventureType: AdventureType): AdventureType {        
         const randomEnumValue = (enumeration: any) => {
             const values = Object.keys(enumeration)
             const enumKey = values[Math.floor(Math.random() * values.length)];
@@ -1059,6 +1066,7 @@ export class OpenAICampaignGenerator {
         const returnValue = randomEnumValue(AdventureType)
 
         if (returnValue == previousAdventureType) {
+            logger.log("Received the same random enum value as the previous arc. ")
             return this.determineAdventureType(previousAdventureType)
         }
 
