@@ -1045,14 +1045,20 @@ export class OpenAICampaignGenerator {
         return result
     }
     
-    private determineAdventureType(previousAdventureType: AdventureType): AdventureType {
+    determineAdventureType(previousAdventureType: AdventureType): AdventureType {
         const randomEnumValue = (enumeration: any) => {
-            const values = Object.keys(enumeration).filter(element => element != String(previousAdventureType))
+            const values = Object.keys(enumeration)
             const enumKey = values[Math.floor(Math.random() * values.length)];
             return enumeration[enumKey];
         }
         
-        return randomEnumValue(AdventureType) 
+        const returnValue = randomEnumValue(AdventureType)
+
+        if (returnValue == previousAdventureType) {
+            return this.determineAdventureType(previousAdventureType)
+        }
+
+        return returnValue
     }
 
     private determineNumberOfEventsInAdventure(numPlayers: number, level: number): number {
@@ -1095,6 +1101,6 @@ export class OpenAICampaignGenerator {
 enum EventType {
     ROLEPLAYING, COMBAT, PUZZLE, TRAP
 }
-enum AdventureType {
+export enum AdventureType {
     TRAVEL, DUNGEON, SIDEQUEST
 }
