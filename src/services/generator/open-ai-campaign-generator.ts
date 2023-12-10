@@ -6,8 +6,10 @@ import { AdventureHook, CampaignSetting, DungeonArc, FinalResolution, Hazard, Si
 import { LoggerRepository } from "../logger/LoggerRepository";
 import { ConsoleLogger } from "../logger/ConsoleLogger";
 import { FileLogger } from "../logger/FileLogger";
+import { CampaignJSONCleaner } from "./campaign-json-cleaner";
 
 const logger = new LoggerRepository([new ConsoleLogger(), new FileLogger()])
+const jsonCleaner = new CampaignJSONCleaner()
 
 export class OpenAICampaignGenerator {
     openai = new OpenAI({
@@ -58,7 +60,7 @@ export class OpenAICampaignGenerator {
             try {
                 logger.log("Sending campaign setting generation request to Open AI")
                 const completion = await this.openai.chat.completions.create({
-                    messages: [{ role: "user", content: `create a new campaign setting for a dungeons and dragons 5e setting. Describe the name, territory, political environment, and recent history leading up to the campaign. 
+                    messages: [{ role: "user", content: `create a new unique campaign setting for a dungeons and dragons 5e setting. Describe the name, territory, political environment, and recent history leading up to the campaign. 
                     where the territory, politics, and history strings contain the full details in multiple paragraphs. 
                     ` }
                     ],
@@ -94,11 +96,12 @@ export class OpenAICampaignGenerator {
                 const content = completion.choices[0].message.function_call
                 
                 if (content != null) {
+                    const response = jsonCleaner.cleanOpenAIJSON(content.arguments)
                     var responseHTML = ""
-                    logger.log("Received campaign setting response from OpenAI: " + content.arguments)
+                    logger.log("Received campaign setting response from OpenAI: " + response)
 
                     try {
-                        const jsonResponse: CampaignSetting = JSON.parse(content.arguments)
+                        const jsonResponse: CampaignSetting = JSON.parse(response)
                         responseHTML += `<h1>${jsonResponse.name}</h1>`
                         const territoryParagraphs = this.parseStringIntoParagraphs(jsonResponse.territory)
 
@@ -200,8 +203,9 @@ export class OpenAICampaignGenerator {
                 const content = completion.choices[0].message.function_call
                 if (content != null) {
                     try {
-                        logger.log("Received adventure hook from OpenAI: " + content.arguments)
-                        const jsonResponse: AdventureHook = JSON.parse(content.arguments)
+                        const response = jsonCleaner.cleanOpenAIJSON(content.arguments)
+                        logger.log("Received adventure hook from OpenAI: " + response)
+                        const jsonResponse: AdventureHook = JSON.parse(response)
                         var responseHTML = ``
                         responseHTML += `<h2>${jsonResponse.title}</h2>\n`
                         
@@ -210,24 +214,28 @@ export class OpenAICampaignGenerator {
                             responseHTML += `<p>${value}</p>\n`
                         })
 
-                        responseHTML += `<h3>Key Locations</h3>`
-                        jsonResponse.keyLocations.forEach(location => {
-                            responseHTML += `<h4>${location.name}</h4>`
-                            const keyLocationParagraphs = this.parseStringIntoParagraphs(location.description)
-                            keyLocationParagraphs.forEach(value => {
-                                responseHTML += `<p>${value}</p>`
+                        if (jsonResponse.keyLocations.length > 0) {
+                            responseHTML += `<h3>Key Locations</h3>`
+                            jsonResponse.keyLocations.forEach(location => {
+                                responseHTML += `<h4>${location.name}</h4>`
+                                const keyLocationParagraphs = this.parseStringIntoParagraphs(location.description)
+                                keyLocationParagraphs.forEach(value => {
+                                    responseHTML += `<p>${value}</p>`
+                                })
                             })
-                        })
+                        }
 
-                        responseHTML += `<h3>Key Figures</h3>`
-                        jsonResponse.keyFigures.forEach(figure => {
-                            responseHTML += `<h4>${figure.name}</h4>`
-                            const keyFigureParagraphs = this.parseStringIntoParagraphs(figure.description)
-                            keyFigureParagraphs.forEach(value => {
-                                responseHTML += `<p>${value}</p>`
-                            })
-                        })
-
+                        if (jsonResponse.keyFigures.length > 0) {
+                            responseHTML += `<h3>Key Figures</h3>`
+                            jsonResponse.keyFigures.forEach(figure => {
+                                responseHTML += `<h4>${figure.name}</h4>`
+                                const keyFigureParagraphs = this.parseStringIntoParagraphs(figure.description)
+                                keyFigureParagraphs.forEach(value => {
+                                    responseHTML += `<p>${value}</p>`
+                                })
+                            })    
+                        }
+                        
                         responseHTML += `<h3>The Adventurers Come Together</h3>`
                         const eventParagraphs = this.parseStringIntoParagraphs(jsonResponse.eventDescription)
                         eventParagraphs.forEach(value => {
@@ -392,10 +400,11 @@ export class OpenAICampaignGenerator {
                 const content = completion.choices[0].message.function_call
     
                 if (content != null) {
-                    logger.log("Received dungeon adventure arc from OpenAI: " + content.arguments)
+                    const response = jsonCleaner.cleanOpenAIJSON(content.arguments)
+                    logger.log("Received dungeon adventure arc from OpenAI: " + response)
 
                     try {
-                        const jsonResponse: DungeonArc = JSON.parse(content.arguments)
+                        const jsonResponse: DungeonArc = JSON.parse(response)
 
                         var output = ``
                         output += `<h1>${jsonResponse.chapterTitle}</h1>`
@@ -509,10 +518,11 @@ export class OpenAICampaignGenerator {
                 const content = completion.choices[0].message.function_call
 
                 if (content != null) {
-                    logger.log("Received side quest adventure arc from OpenAI: " + content.arguments)
+                    const response = jsonCleaner.cleanOpenAIJSON(content.arguments)
+                    logger.log("Received side quest adventure arc from OpenAI: " + response)
 
                     try {
-                        const jsonResponse: SideQuestArc = JSON.parse(content.arguments)
+                        const jsonResponse: SideQuestArc = JSON.parse(response)
 
                         var output = ``
                         output += `<h1>${jsonResponse.chapterTitle}</h1>`
@@ -671,10 +681,11 @@ export class OpenAICampaignGenerator {
                 
                 const content = completion.choices[0].message.function_call
                 if (content != null) {
-                    logger.log("Received travel adventure arc from OpenAI: " + content.arguments)
+                    const response = jsonCleaner.cleanOpenAIJSON(content.arguments)
+                    logger.log("Received travel adventure arc from OpenAI: " + response)
 
                     try {
-                        const jsonResponse: TravelAdventureArc = JSON.parse(content.arguments)
+                        const jsonResponse: TravelAdventureArc = JSON.parse(response)
 
                         var output = ``
                         output += `<h1>${jsonResponse.chapterTitle}</h1>`
@@ -756,17 +767,18 @@ export class OpenAICampaignGenerator {
                                 output += `<p>${element}</p>`
                             });
                         }
-                        
-                        output += `<h3>Key Locations</h3>`
 
                         if (jsonResponse.destinationKeyLocations != undefined) {
-                            jsonResponse.destinationKeyLocations.forEach(location => {
-                                output += `<h4>${location.name}</h4>`
-                                const keyLocationParagraphs = this.parseStringIntoParagraphs(location.description)
-                                keyLocationParagraphs.forEach(value => {
-                                    output += `<p>${value}</p>`
-                                })
-                            });
+                            if (jsonResponse.destinationKeyLocations.length > 0) {
+                                output += `<h3>Key Locations</h3>`
+                                jsonResponse.destinationKeyLocations.forEach(location => {
+                                    output += `<h4>${location.name}</h4>`
+                                    const keyLocationParagraphs = this.parseStringIntoParagraphs(location.description)
+                                    keyLocationParagraphs.forEach(value => {
+                                        output += `<p>${value}</p>`
+                                    })
+                                });
+                            }
                         }
 
                         resolve(output)
@@ -904,10 +916,11 @@ export class OpenAICampaignGenerator {
                 
                 const content = completion.choices[0].message.function_call
                 if (content != null) {
-                    logger.log("Received final adventure arc from OpenAI: " + content.arguments)
+                    const response = jsonCleaner.cleanOpenAIJSON(content.arguments)
+                    logger.log("Received final adventure arc from OpenAI: " + response)
 
                     try {
-                        const jsonResponse: DungeonArc = JSON.parse(content.arguments)
+                        const jsonResponse: DungeonArc = JSON.parse(response)
 
                         var output = ``
                         output += `<h1>${jsonResponse.chapterTitle}</h1>`
@@ -961,7 +974,7 @@ export class OpenAICampaignGenerator {
 
                 var generationRequest = `
                     Now that the adventurers have finished their quest, describe how the world has changed because of their heroic actions. What rewards have they received? Are they given any special honors?
-                    Do not include a chapter number in the chapter title.
+                    Do not include a chapter number in the chapter title. Ensure all endlines and newlines are represented by the \n character. Ensure all string values have a closing quotation mark.
                 `
 
                 const completion = await this.openai.chat.completions.create({
@@ -992,10 +1005,11 @@ export class OpenAICampaignGenerator {
                 const content = completion.choices[0].message.function_call
 
                 if (content != null) {
-                    logger.log("Received final resolution from OpenAI: " + content.arguments)
+                    const response = jsonCleaner.cleanOpenAIJSON(content.arguments)
+                    logger.log("Received final resolution from OpenAI: " + response)
 
                     try {
-                        const jsonResponse: FinalResolution = JSON.parse(content.arguments)
+                        const jsonResponse: FinalResolution = JSON.parse(response)
 
                         var output = ``
                         output += `<h1>${jsonResponse.chapterTitle}</h1>`
@@ -1026,7 +1040,7 @@ export class OpenAICampaignGenerator {
 
     // The number of adventure arcs assumes the players each gain 2 levels per adventure arc
     private determineNumberOfAdventureArcs(numPlayers: number, numLevels: number): number {
-        const result = Math.min(Math.floor(numLevels / 2), 1) + Math.min(numPlayers, 5)
+        const result = Math.floor(numLevels / 2) + numPlayers
         logger.log(`Generating ${result} adventure arcs`)
         return result
     }
@@ -1044,7 +1058,7 @@ export class OpenAICampaignGenerator {
     private determineNumberOfEventsInAdventure(numPlayers: number, level: number): number {
         // Assuming the level is the current average level of the players
         // The number events should be the twice the number of players plus the current level of the players / 4 with a minimum of 1
-        const levelOffset = Math.min(Math.floor(level / 5), 1)
+        const levelOffset = Math.min(Math.floor(level / 5), 4)
         const result = Math.min((2 * numPlayers), 5) + levelOffset
         logger.log(`Generating ${result} events within the adventure`)
         return result
