@@ -1040,7 +1040,7 @@ export class OpenAICampaignGenerator {
 
     // The number of adventure arcs assumes the players each gain 2 levels per adventure arc
     private determineNumberOfAdventureArcs(numPlayers: number, numLevels: number): number {
-        const result = Math.floor(numLevels / 2) + Math.min(numPlayers, 5)
+        const result = Math.floor(numLevels / 2) + Math.min(numPlayers, 1)
         logger.log(`Generating ${result} adventure arcs`)
         return result
     }
@@ -1064,7 +1064,7 @@ export class OpenAICampaignGenerator {
     private determineNumberOfEventsInAdventure(numPlayers: number, level: number): number {
         // Assuming the level is the current average level of the players
         // The number events should be the twice the number of players plus the current level of the players / 4 with a minimum of 1
-        const levelOffset = Math.min(Math.floor(level / 5), 4)
+        const levelOffset = Math.min(Math.floor(level / 5), 1)
         const result = Math.min((2 * numPlayers), 5) + levelOffset
         logger.log(`Generating ${result} events within the adventure`)
         return result
