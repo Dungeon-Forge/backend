@@ -1038,7 +1038,7 @@ export class OpenAICampaignGenerator {
     }
 
     private determineNumberOfAdventureArcs(numPlayers: number, numLevels: number): number {
-        const result = Math.min(Math.floor(numLevels / 5) + Math.floor(numPlayers / 2), 2)
+        const result = Math.max(Math.floor(numLevels / 5) + Math.floor(numPlayers / 2), 2)
         logger.log(`Generating ${result} adventure arcs`)
         return result
     }
