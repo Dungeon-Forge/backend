@@ -293,23 +293,12 @@ export class OpenAICampaignGenerator {
             logger.log(`Generating a ${adventureType} mid cmapaign adventure arc`)
             this.previousAdventureType = adventureType
             try {
-                switch(adventureType.toString) {
-                    case AdventureType.DUNGEON.toString: {
-                        resolve(await this.generateDungeonAdventureArc(form, currentLevel))
-                        break;
-                    }
-                    case AdventureType.SIDEQUEST.toString: {
-                        resolve(await this.generateSideQuestAdventureArc(form, currentLevel))
-                        break;
-                    }
-                    case AdventureType.TRAVEL.toString: {
-                        resolve(await this.generateTravelAdventureArc(form, currentLevel))
-                        break;
-                    }
-                    default: {
-                        reject(new Error("Unknown Adventure Type Chosen"))
-                        break;
-                    }
+                if (adventureType == AdventureType.SIDEQUEST) {
+                    resolve(await this.generateSideQuestAdventureArc(form, currentLevel))
+                } else if (adventureType == AdventureType.TRAVEL) {
+                    resolve(await this.generateTravelAdventureArc(form, currentLevel))
+                } else {
+                    resolve(await this.generateDungeonAdventureArc(form, currentLevel))
                 }
             } catch(error) {
                 logger.log("failed to generate mid campaign adventure arc: " + error)
