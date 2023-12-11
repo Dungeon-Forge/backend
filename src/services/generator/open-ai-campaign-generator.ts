@@ -290,7 +290,6 @@ export class OpenAICampaignGenerator {
     private async generateMidCampaignAdventureArc(form: CampaignFormResponse, currentLevel: number, previousAdventureType: AdventureType): Promise<string> {
         return new Promise(async (resolve, reject) => {
             const adventureType = this.determineAdventureType(previousAdventureType)
-            logger.log(`Generating a ${adventureType} mid cmapaign adventure arc`)
             this.previousAdventureType = adventureType
             try {
                 if (adventureType == AdventureType.SIDEQUEST) {
@@ -1038,9 +1037,8 @@ export class OpenAICampaignGenerator {
         })
     }
 
-    // The number of adventure arcs assumes the players each gain 2 levels per adventure arc
     private determineNumberOfAdventureArcs(numPlayers: number, numLevels: number): number {
-        const result = Math.floor(numLevels / 2) + Math.min(numPlayers, 1)
+        const result = Math.min(Math.floor(numLevels / 5) + Math.floor(numPlayers / 2), 2)
         logger.log(`Generating ${result} adventure arcs`)
         return result
     }
